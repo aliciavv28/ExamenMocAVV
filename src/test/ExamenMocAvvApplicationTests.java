@@ -1,13 +1,13 @@
-package com.example.ExamenMocAVV;
+package test;
 
-import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.testng.annotations.Test;
 
 @SpringBootTest
 class ExamenMocAvvApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
+    @Test
+    void contextLoads() {
+    }
 
 }
