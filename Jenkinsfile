@@ -58,7 +58,7 @@ pipeline {
             post {
                 success {
                     bat """
-                        copy target\\*%APP_VERSION%.jar versiones\\
+                        copy target\\\\*.jar versiones\\\\
                     """
                 }
             }
