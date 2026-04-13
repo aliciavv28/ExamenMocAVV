@@ -2,72 +2,64 @@ pipeline {
     agent any
 
     tools {
-        maven 'maven'
+        jdk 'jdk-21'
+        maven 'Maven3.9.11'
     }
 
     environment {
-        VERSION = '1.0.0'
+        APP_VERSION = "1.1.1"
     }
 
     stages {
-        // Stage 1: Checkout
-        stage('Checkout') {
+
+        stage('Clonar repositorio') {
             steps {
-                echo 'Clonando repositorio desde GitHub...'
-                checkout scm
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/master']],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/aliciavv28/ExamenMocAVV.git'
+                    ]]
+                ])
             }
         }
 
-        // Stage 2: Build
-        stage('Build') {
+        stage('Compilar proyecto') {
             steps {
-                echo 'Compilando proyecto...'
-                withMaven(maven: 'maven') {
-                    bat 'mvn clean compile'
+                bat 'mvn clean compile'
+            }
+        }
+
+        stage('Ejecutar tests') {
+            steps {
+                bat 'mvn test'
+            }
+        }
+
+        stage('Generar paquete') {
+            steps {
+                bat 'mvn clean package'
+            }
+        }
+
+        stage('Guardar artefacto') {
+            steps {
+                script {
+                    bat 'echo Preparando carpeta de versiones...'
+
+                    bat '''
+                        if exist versiones (
+                            rmdir /s /q versiones
+                        )
+                        mkdir versiones
+                    '''
                 }
-            }
-        }
-
-        // Stage 3: Test
-        stage('Test') {
-            steps {
-                echo 'Ejecutando tests...'
-                withMaven(maven: 'maven') {
-                    bat 'mvn test'
-                }
-            }
-        }
-
-        // Stage 4: Package
-        stage('Package') {
-            steps {
-                echo 'Empaquetando proyecto...'
-                withMaven(maven: 'maven') {
-                    bat 'mvn package'
-                }
-            }
-        }
-
-        // Stage 5: Move jar
-        stage('Move jar') {
-            steps {
-                echo 'Eliminando directorio versiones....'
-
-                // Borra la carpeta versiones si existe
-                bat '''
-                if exist versiones (
-                    rmdir /s /q versiones
-                )
-                '''
-
             }
             post {
                 success {
-                    echo 'Se crea el directorio versiones con la última versión de la api'
-                    bat '''
-                    mkdir versiones
-                    copy target\\*-${VERSION}.jar versiones\\
-                    '''
+                    bat """
+                        copy target\\*%APP_VERSION%.jar versiones\\
+                    """
                 }
             }
         }
