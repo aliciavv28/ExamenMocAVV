@@ -5,13 +5,12 @@ import com.example.examenMocAVV.service.ProductoService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-
-// IMPORTACIONES CRÍTICAS CORREGIDAS:
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -25,7 +24,7 @@ class ProductoControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockitoBean
+    @MockBean
     private ProductoService productoService;
 
     @Test
@@ -56,7 +55,7 @@ class ProductoControllerTest {
 
         when(productoService.findProducto(1L)).thenReturn(Optional.of(producto));
 
-        mockMvc.perform(get("/api/producto/1"))
+        mockMvc.perform(get("/api/producto/{productoId}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.nombre").value("Ratón"));
     }
@@ -67,7 +66,7 @@ class ProductoControllerTest {
         // pero es buena práctica especificarlo.
         doNothing().when(productoService).deleteProducto(1L);
 
-        mockMvc.perform(delete("/api/producto/1"))
+        mockMvc.perform(delete("/api/producto/{productoId}"))
                 .andExpect(status().isOk());
     }
 }
